@@ -17,7 +17,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>main.cpp</itemPath>
+      <itemPath>common/main.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -45,7 +45,7 @@
       <compileType>
         <ccTool>
           <architecture>2</architecture>
-          <commandLine>-pthreads</commandLine>
+          <commandLine>-pthread</commandLine>
           <mtLevel>2</mtLevel>
         </ccTool>
       </compileType>
@@ -55,7 +55,7 @@
       </item>
       <item path="common/Thread.hpp" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      <item path="common/main.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -84,7 +84,7 @@
       </item>
       <item path="common/Thread.hpp" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      <item path="common/main.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
   </confs>

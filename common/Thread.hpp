@@ -26,7 +26,8 @@ private:
     pthread_t threadId;
     pthread_attr_t threadAttr;
     
-    Runnable*runnable;
+    Runnable* runnable;
+    
     bool detached;
     void* result;
     
@@ -34,8 +35,8 @@ private:
     
     virtual void* run();
     void setCompleted();
-    static void* startThreadRunnable(void* pVoid);
-    static void* startThread(void* pVoid);
+    static void* startThreadWithRunnable(void* pVoid);
+    static void* startThreadWithoutRunnable(void* pVoid);
     void printError(const char* msg, int status, char* fileName, int lineNumber);
     
     void init(Runnable* runnable, bool detached);
@@ -69,7 +70,7 @@ Thread::Thread(Runnable* runnable, bool detached)
 
 Thread::Thread(const Thread& thrd)
 {
-    // For = operator
+    // copy constructor.
 }
 
 /* Public Methods */
@@ -96,7 +97,7 @@ void Thread::start()
     {
         if (runnable == NULL)
         {
-            int status = pthread_create(&threadId, &threadAttr, Thread::startThread, (void*)this);
+            status = pthread_create(&threadId, &threadAttr, Thread::startThreadWithoutRunnable, (void*)this);
             if (status != NULL)
             {
                 stringstream ss;
@@ -107,7 +108,7 @@ void Thread::start()
         }
         else
         {
-            int status = pthread_create(&threadId, &threadAttr, Thread::startThreadRunnable, (void*)this);
+            int status = pthread_create(&threadId, &threadAttr, Thread::startThreadWithRunnable, (void*)this);
             if (status != NULL)
             {
                 stringstream ss;
@@ -123,7 +124,7 @@ void Thread::start()
         status = pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
         if (runnable == NULL)
         {
-            int status = pthread_create(&threadId, &threadAttr, Thread::startThread, (void*)this);
+            int status = pthread_create(&threadId, &threadAttr, Thread::startThreadWithoutRunnable, (void*)this);
             if (status != NULL)
             {
                 stringstream ss;
@@ -134,25 +135,24 @@ void Thread::start()
         }
         else
         {
-            int status = pthread_create(&threadId, &threadAttr, Thread::startThreadRunnable, (void*)this);
-//            if (status != NULL)
-//            {
-//                stringstream ss;
-//                ss << "start() failed on pthread_create with runnable and detached = "<<detached;
-//                printError(ss.str().c_str(), status, __FILE__, __LINE__);
-//                exit(status);
-//            }
-            
+            int status = pthread_create(&threadId, &threadAttr, Thread::startThreadWithRunnable, (void*)this);
+            if (status != NULL)
+            {
+                stringstream ss;
+                ss << "start() failed on pthread_create with runnable and detached = "<<detached;
+                printError(ss.str().c_str(), status, __FILE__, __LINE__);
+                exit(status);
+            }
         }
         
         status = pthread_attr_destroy(&threadAttr);
-//        if (status != NULL)
-//        {
-//            stringstream ss;
-//            ss << "start() on pthread_attr_destroy threadId = " << threadId;
-//            printError(ss.str().c_str(), status, __FILE__, __LINE__);
-//            exit(status);
-//        }
+        if (status != NULL)
+        {
+            stringstream ss;
+            ss << "start() on pthread_attr_destroy threadId = " << threadId;
+            printError(ss.str().c_str(), status, __FILE__, __LINE__);
+            exit(status);
+        }
     }
 
 }
@@ -160,13 +160,13 @@ void Thread::start()
 void* Thread::join()
 {
     int status = pthread_join(threadId, NULL);
-//    if (status != NULL)
-//    {
-//        stringstream ss;
-//        ss << "Failed on join for thread = "<<threadId;
-//        printError(ss.str().c_str(), status, __FILE__, __LINE__);
-//        exit(status);
-//    }
+    if (status != NULL)
+    {
+        stringstream ss;
+        ss << "Failed on join for thread = "<<threadId;
+        printError(ss.str().c_str(), status, __FILE__, __LINE__);
+        exit(status);
+    }
 }
 
 void Thread::init(Runnable* runnable, bool detached)
@@ -179,6 +179,7 @@ void Thread::init(Runnable* runnable, bool detached)
 
 void* Thread::run()
 {
+    cout<<"Executing NULL runnable..."<<endl;
     // No op
     return NULL;
 }
@@ -188,21 +189,29 @@ void Thread::setCompleted()
     // Completion was handled by pthread_join()
 }
 
-void* Thread::startThreadRunnable(void* pVoid)
+void* Thread::startThreadWithRunnable(void* pVoid)
 {
+    cout<<"Thread::startThreadWithRunnable(void* pVoid)"<<endl;
     // Start function when runnable is enabled.
     Thread* runnableThread = static_cast<Thread*>(pVoid);
+    // Check not null.
     assert(runnableThread != NULL);
-    runnableThread->result = runnableThread->run();
+    // Execute run function.
+    cout<<"Trying... runnableThread->result = runnableThread->run()"<<endl;
+    runnableThread->result = runnableThread->runnable->run();
+    cout<<"Executed... runnableThread->result = runnableThread->run()"<<endl;
     runnableThread->setCompleted();
+    cout<<"runnableThread->setCompleted()..."<<endl;
     return runnableThread->result;
 }
 
-void* Thread::startThread(void* pVoid)
+void* Thread::startThreadWithoutRunnable(void* pVoid)
 {
     // Thread star the function when no runnable is invoked.
     Thread* thrd = static_cast<Thread*>(pVoid);
+    // Check not null
     assert(thrd != NULL);
+    // Run itself implementation.
     thrd->result = thrd->run();
     thrd->setCompleted();
     return thrd->result;
@@ -218,7 +227,7 @@ void Thread::printError(const char* msg, int status, char* fileName, int lineNum
 /* Destructor */
 Thread::~Thread()
 {
-    // 
+    // No op.
 }
 
 #endif	/* THREAD_HPP */

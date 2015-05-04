@@ -16,9 +16,10 @@ class SimpleRunnable : public Runnable
 {
 private:
     int myId;
+    int delayInSec;
 public:
     SimpleRunnable();
-    SimpleRunnable(int myId);
+    SimpleRunnable(int myId, int delayInSec);
     
     void* run();
     
@@ -29,18 +30,21 @@ public:
 SimpleRunnable::SimpleRunnable() : Runnable()
 {
     myId = -1;
+    delayInSec = 0;
 }
 
-SimpleRunnable::SimpleRunnable(int myId) : Runnable()
+SimpleRunnable::SimpleRunnable(int myId, int delayInSec) : Runnable()
 {
     this->myId = myId;
+    this->delayInSec = delayInSec;
 }
 
 /* Public methods */
 void* SimpleRunnable::run()
 {
     Runnable::run();
-    cout<<"Thread myId:"<<myId<<" is running..."<<endl;
+    sleep(delayInSec);
+    cout<<"*** Thread myId:"<<myId<<" is running..."<<endl;
     // Return myId if run() was succeeded.
     return reinterpret_cast<void*>(myId);
 }

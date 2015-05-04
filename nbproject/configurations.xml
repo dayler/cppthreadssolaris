@@ -5,6 +5,7 @@
                    displayName="Header Files"
                    projectFiles="true">
       <logicalFolder name="common" displayName="common" projectFiles="true">
+        <itemPath>common/CMutex.hpp</itemPath>
         <itemPath>common/Runnable.hpp</itemPath>
         <itemPath>common/SimpleRunnable.hpp</itemPath>
         <itemPath>common/Thread.hpp</itemPath>
@@ -49,6 +50,8 @@
           <mtLevel>2</mtLevel>
         </ccTool>
       </compileType>
+      <item path="common/CMutex.hpp" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="common/Runnable.hpp" ex="false" tool="3" flavor2="0">
       </item>
       <item path="common/SimpleRunnable.hpp" ex="false" tool="3" flavor2="0">
@@ -78,6 +81,8 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="common/CMutex.hpp" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="common/Runnable.hpp" ex="false" tool="3" flavor2="0">
       </item>
       <item path="common/SimpleRunnable.hpp" ex="false" tool="3" flavor2="0">

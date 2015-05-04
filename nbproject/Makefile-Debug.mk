@@ -14,15 +14,15 @@ GREP=grep
 NM=nm
 CCADMIN=CCadmin
 RANLIB=ranlib
-CC=gcc
-CCC=g++
-CXX=g++
-FC=gfortran
+CC=cc
+CCC=CC
+CXX=CC
+FC=f95
 AS=as
 
 # Macros
-CND_PLATFORM=GNU-MacOSX
-CND_DLIB_EXT=dylib
+CND_PLATFORM=OracleSolarisStudio-Solaris-x86
+CND_DLIB_EXT=so
 CND_CONF=Debug
 CND_DISTDIR=dist
 CND_BUILDDIR=build
@@ -42,8 +42,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-m64 -pthread
-CXXFLAGS=-m64 -pthread
+CCFLAGS=-xautopar -xvector -xreduction -xloopinfo -O3 -m64 -pthread
+CXXFLAGS=-xautopar -xvector -xreduction -xloopinfo -O3 -m64 -pthread
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -64,8 +64,7 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/cppthreadssolaris: ${OBJECTFILES}
 
 ${OBJECTDIR}/common/main.o: common/main.cpp 
 	${MKDIR} -p ${OBJECTDIR}/common
-	${RM} "$@.d"
-	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/common/main.o common/main.cpp
+	$(COMPILE.cc) -g -o ${OBJECTDIR}/common/main.o common/main.cpp
 
 # Subprojects
 .build-subprojects:
@@ -74,6 +73,7 @@ ${OBJECTDIR}/common/main.o: common/main.cpp
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
 	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/cppthreadssolaris
+	${CCADMIN} -clean
 
 # Subprojects
 .clean-subprojects:

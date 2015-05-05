@@ -191,17 +191,13 @@ void Thread::setCompleted()
 
 void* Thread::startThreadWithRunnable(void* pVoid)
 {
-    cout<<"Thread::startThreadWithRunnable(void* pVoid)"<<endl;
     // Start function when runnable is enabled.
     Thread* runnableThread = static_cast<Thread*>(pVoid);
     // Check not null.
     assert(runnableThread != NULL);
     // Execute run function.
-    cout<<"Trying... runnableThread->result = runnableThread->run()"<<endl;
     runnableThread->result = runnableThread->runnable->run();
-    cout<<"Executed... runnableThread->result = runnableThread->run()"<<endl;
     runnableThread->setCompleted();
-    cout<<"runnableThread->setCompleted()..."<<endl;
     return runnableThread->result;
 }
 

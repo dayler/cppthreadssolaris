@@ -14,9 +14,13 @@ class CMutex {
 public:
     CMutex(pthread_mutex_t* mutex);
     CMutex(const CMutex& orig);
+    
+    pthread_mutex_t* getMutex();
+    void unlock();
+    
     virtual ~CMutex();
 private:
-    pthread_mutex_t* mutex = NULL;
+    pthread_mutex_t* mutex;
 };
 
 /* Constructors */
@@ -29,17 +33,28 @@ CMutex::CMutex(pthread_mutex_t* mutex)
     
 }
 
-/* Private methods */
+CMutex::CMutex(const CMutex& orig)
+{
+    // No op
+}
+
+/* Public methods */
+pthread_mutex_t* CMutex::getMutex()
+{
+    return mutex;
+}
+
+void CMutex::unlock()
+{
+    // Unlock mutex
+    pthread_mutex_unlock(mutex);
+}
 
 /* Destructor */
 CMutex::~CMutex()
 {
-    if (mutex != NULL)
-    {
-        // Unlock mutex
-        pthread_mutex_unlock(mutex);
-    }
+    // Unlock mutex
+    unlock();
 }
 
 #endif	/* CMUTEX_HPP */
-

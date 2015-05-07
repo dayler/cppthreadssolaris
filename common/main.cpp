@@ -32,8 +32,6 @@ int                 workToDo = 0;
 //pthread_mutex_t     m = PTHREAD_MUTEX_INITIALIZER;
 
 const int COUNT = 5;
-
-CSync* pSync;
 int shared = 0;
 
 class Item
@@ -68,6 +66,11 @@ public:
         this->id = id;
     }
     
+    ~TH1()
+    {
+        // No op
+    }
+    
     bool isRunning()
     {
         return shared < COUNT;
@@ -78,11 +81,12 @@ public:
         printf("THID:%d is starting...\n", id);
         while (isRunning())
         {
-            string sshared = SSTR(++shared);
+            string sshared = SSTR(shared);
             printf("THID:%d Pushed %s\n", id, sshared.c_str());
-            sleep(2);
+            sleep(1);
             // Push item into queue
             items->push(new Item(sshared.c_str()));
+            shared++;
         }
         
         printf("THID:%d was finished...\n", id);
@@ -101,9 +105,15 @@ public:
         this->id = id;
     }
     
+    ~TH2()
+    {
+        // No op
+    }
+    
     bool isRunning()
     {
-        return shared < COUNT;
+        // If shred is less than MAX or items is not empty.
+        return shared < COUNT || !items->empty();
     }
     
     void* run()
@@ -111,11 +121,11 @@ public:
         printf("THID:%d is starting...\n", id);
         while (isRunning())
         {
-            sleep(2);
-            printf("THID:%d q->waitAndPop()... s=%d\n", id, items->size());
-//            Item* val = items->waitAndPop();
-//            printf("...THID:%d q->waitAndPop() = %s\n", id, val->cstr);
-//            delete val;
+            sleep(3);
+            // printf("THID:%d q->waitAndPop()... s=%d\n", id, items->size());
+            Item* val = items->waitAndPop();
+            printf("+++++ THID:%d q->waitAndPop() = %s\n", id, val->cstr);
+            delete val;
         }
         printf("THID:%d was finished...\n", id);
         return reinterpret_cast<void*>(id);
@@ -127,7 +137,6 @@ int main()
     cout<<"Start main..."<<endl;
     items = new Queue<Item>();
     printf("pSync = new CSync()\n");
-    pSync = new CSync();
     
     printf("Init runnables.\n");
     Runnable* r1 = new TH1(111);
@@ -138,15 +147,14 @@ int main()
     
     // Start thread
     printf("Starting threads...\n");
-    t1->start();
-    t2->start();
+    t2->start(); // Consumer
+    t1->start(); // Producer
     printf("Was started threads...\n");
     
     // Join threads
-    long res1 = reinterpret_cast<long>(t1->join());
-    long res2 = reinterpret_cast<long>(t2->join());
-    
+    long res1 = reinterpret_cast<long>(t1->join()); // Producer
     cout<<"Result t1 = "<<res1<<endl;
+    long res2 = reinterpret_cast<long>(t2->join()); // Consumer
     cout<<"Result t2 = "<<res2<<endl;
     
     // delete
@@ -154,7 +162,6 @@ int main()
     delete r2;
     delete t1;
     delete t2;
-    delete pSync;
     delete items;
     
     cout<<"Finish well main..."<<endl;

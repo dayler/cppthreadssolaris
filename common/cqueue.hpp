@@ -34,11 +34,8 @@ public:
      */
     Queue()
     {
-        printf("-- 1\n");
         pthread_mutex_init(&mtx, NULL);
-        printf("-- 2\n");
         sync = new CSync();
-        printf("-- 3\n");
     }
     
     virtual ~Queue()

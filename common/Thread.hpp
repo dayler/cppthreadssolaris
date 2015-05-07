@@ -159,14 +159,19 @@ void Thread::start()
 
 void* Thread::join()
 {
+    printf("!!!!! 1\n");
     int status = pthread_join(threadId, NULL);
-    if (status != NULL)
+    printf("!!!!! 2\n");
+    if (status != 0)
     {
+        printf("!!!!! 3\n");
         stringstream ss;
         ss << "Failed on join for thread = "<<threadId;
         printError(ss.str().c_str(), status, __FILE__, __LINE__);
         exit(status);
+        printf("!!!!! 4\n");
     }
+    printf("!!!!! 5\n");
 }
 
 void Thread::init(Runnable* runnable, bool detached)

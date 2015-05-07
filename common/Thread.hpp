@@ -86,7 +86,7 @@ void Thread::start()
     if (status != 0)
     {
         printError("On start when pthread_attr_init is called.", status, __FILE__, __LINE__);
-        exit(status);
+        pthread_exit(status);
     }
     // PTHREAD_SCOPE_SYSTEM, meaning that the threads contend for CPU time with all processes
     // running on the machine.
@@ -227,7 +227,8 @@ void Thread::printError(const char* msg, int status, char* fileName, int lineNum
 /* Destructor */
 Thread::~Thread()
 {
-    // No op.
+    // Destroying attr
+    pthread_attr_destroy(&threadAttr);
 }
 
 #endif	/* THREAD_HPP */

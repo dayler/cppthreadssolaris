@@ -10,7 +10,7 @@
 #include <queue>
 
 #include "SMutex.hpp"
-#include "CSynch.hpp"
+#include "SSynch.hpp"
 
 template <class V>
 class Queue

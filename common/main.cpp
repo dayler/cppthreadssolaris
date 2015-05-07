@@ -19,7 +19,7 @@
 #include "SimpleRunnable.hpp"
 #include "Thread.hpp"
 #include "SMutex.hpp"
-#include "CSynch.hpp"
+#include "SSynch.hpp"
 #include "cqueue.hpp"
 
 using namespace std;

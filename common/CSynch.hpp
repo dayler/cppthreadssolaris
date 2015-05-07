@@ -20,6 +20,7 @@ class CSync
 {
 private:
     pthread_mutex_t mutex;
+    
     pthread_cond_t syncVar;
     
     long timeout;
@@ -34,6 +35,7 @@ public:
     void doWait();
     void doNotifyAll();
     pthread_cond_t* getSyncCondVar();
+    pthread_mutex_t* getMutex();
     
     virtual ~CSync();
 };
@@ -57,7 +59,7 @@ CSync::CSync(const CSync& orig)
 /* Public methods */
 void CSync::doWait()
 {
-    CMutex cmutex(&mutex); // lock
+    SMutex cmutex(&mutex); // lock
     int rc = pthread_cond_wait(&syncVar, &mutex);
     if (rc != 0)
     {
@@ -73,7 +75,7 @@ void CSync::doWait()
 
 void CSync::doWait(long timeout)
 {
-    CMutex cmutex(&mutex); // lock
+    SMutex cmutex(&mutex); // lock
     
     this->timeout = timeout;
     int rc = gettimeofday(&tp, NULL);
@@ -105,16 +107,22 @@ void CSync::doWait(long timeout)
 
 void CSync::doNotifyAll()
 {
-    CMutex cmutex(&mutex);
+    SMutex cmutex(&mutex);
     // Condition of if statement has been met. 
     // Signal to free waiting thread by freeing the mutex.
     // Note: functionCount1() is now permitted to modify "count".
-    pthread_cond_signal(&syncVar ); // notify all
+    // pthread_cond_signal(&syncVar ); // notify all
+    pthread_cond_broadcast(&syncVar);
 }
 
 pthread_cond_t* CSync::getSyncCondVar()
 {
     return &syncVar;
+}
+
+pthread_mutex_t* CSync::getMutex()
+{
+    return &mutex;
 }
 
 /* Destructor */

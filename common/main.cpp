@@ -82,8 +82,11 @@ public:
     {
         while (isRunning())
         {
+            printf("AAAA 1\n");
             string sshared = SSTR(shared);
-            sleep(1);
+            printf("AAAA 2\n");
+            sleep(3);
+            printf("AAAA 3\n");
             items->push(new Item(sshared));
             printf("THID:%d Pushed %s\n", id, sshared.c_str());
             shared++;
@@ -118,7 +121,8 @@ public:
     {
         while (isRunning())
         {
-            sleep(3);
+            printf("BBBB\n");
+            sleep(1);
             Item* val = items->waitAndPop();
             printf("THID:%d q->waitAndPop() = %s\n", id, val->cstr.c_str());
             delete val;

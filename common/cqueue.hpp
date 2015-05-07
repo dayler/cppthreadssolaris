@@ -17,8 +17,9 @@ class Queue
 {
 private:
     
-    pthread_mutex_t mtx;
-    
+    pthread_mutex_t mtx_pop;
+    pthread_mutex_t mtx_push;
+    pthread_mutex_t mtx_empty;
     /** The queue. */
     std::queue<V*> queue;
     
@@ -34,23 +35,29 @@ public:
      */
     Queue()
     {
-        pthread_mutex_init(&mtx, NULL);
+        pthread_mutex_init(&mtx_pop, NULL);
+        pthread_mutex_init(&mtx_push, NULL);
+        pthread_mutex_init(&mtx_empty, NULL);
         sync = new CSync();
     }
     
     virtual ~Queue()
     {
-        pthread_mutex_destroy(&mtx);
+        pthread_mutex_destroy(&mtx_pop);
+        pthread_mutex_destroy(&mtx_push);
+        pthread_mutex_destroy(&mtx_empty);
         delete sync;
     }
     
     /**
      * Returns true if the queue is empty.
+     * 
+     * 
      * @return bool
      */
     bool empty()
     {
-        CMutex cmutex(&mtx);
+        SMutex smutex(&mtx_empty, true);
         return queue.empty();
     }
     
@@ -66,7 +73,7 @@ public:
     void push(V *value)
     {
         {
-            CMutex cmutex(&mtx);
+            SMutex cmutex(&mtx_push);
             queue.push(value);
         }
         sync->doNotifyAll();
@@ -78,7 +85,7 @@ public:
      */
     V* waitAndPop()
     {
-        CMutex cmutex(&mtx);\
+        SMutex cmutex(&mtx_pop);\
         while(queue.empty())
         {
             // Block thread to await new items.

@@ -11,6 +11,8 @@
 #include <time.h>
 #include <pthread.h>
 #include <sys/time.h>
+#include <string.h>
+#include <string>
 
 #include "Utils.hpp"
 #include "Runnable.hpp"
@@ -37,9 +39,9 @@ int shared = 0;
 class Item
 {
 public:
-    const char* cstr;
+    string cstr;
     
-    Item(const char* cstr)
+    Item(string cstr)
     {
         this->cstr = cstr;
     }
@@ -78,18 +80,14 @@ public:
     
     void* run()
     {
-        printf("THID:%d is starting...\n", id);
         while (isRunning())
         {
             string sshared = SSTR(shared);
-            printf("THID:%d Pushed %s\n", id, sshared.c_str());
             sleep(1);
-            // Push item into queue
-            items->push(new Item(sshared.c_str()));
+            items->push(new Item(sshared));
+            printf("THID:%d Pushed %s\n", id, sshared.c_str());
             shared++;
         }
-        
-        printf("THID:%d was finished...\n", id);
         return reinterpret_cast<void*>(id);
     }
 };
@@ -118,16 +116,13 @@ public:
     
     void* run()
     {
-        printf("THID:%d is starting...\n", id);
         while (isRunning())
         {
             sleep(3);
-            // printf("THID:%d q->waitAndPop()... s=%d\n", id, items->size());
             Item* val = items->waitAndPop();
-            printf("+++++ THID:%d q->waitAndPop() = %s\n", id, val->cstr);
+            printf("THID:%d q->waitAndPop() = %s\n", id, val->cstr.c_str());
             delete val;
         }
-        printf("THID:%d was finished...\n", id);
         return reinterpret_cast<void*>(id);
     }
 };
@@ -136,32 +131,38 @@ int main()
 {
     cout<<"Start main..."<<endl;
     items = new Queue<Item>();
-    printf("pSync = new CSync()\n");
     
     printf("Init runnables.\n");
     Runnable* r1 = new TH1(111);
     Runnable* r2 = new TH2(222);
+//    Runnable* r3 = new TH2(333);
     
     Thread* t1 = new Thread(r1, false);
     Thread* t2 = new Thread(r2, false);
+//    Thread* t3 = new Thread(r3, false);
     
     // Start thread
     printf("Starting threads...\n");
     t2->start(); // Consumer
     t1->start(); // Producer
-    printf("Was started threads...\n");
+//    t3->start(); // Consumer
+    printf("Was started threads joining ...\n");
     
-    // Join threads
+    // Joining threads
     long res1 = reinterpret_cast<long>(t1->join()); // Producer
     cout<<"Result t1 = "<<res1<<endl;
     long res2 = reinterpret_cast<long>(t2->join()); // Consumer
     cout<<"Result t2 = "<<res2<<endl;
+//    long res3 = reinterpret_cast<long>(t3->join()); // Consumer
+//    cout<<"Result t2 = "<<res3<<endl;
     
     // delete
     delete r1;
     delete r2;
+//    delete r3;
     delete t1;
     delete t2;
+//    delete t3;
     delete items;
     
     cout<<"Finish well main..."<<endl;

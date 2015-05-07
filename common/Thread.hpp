@@ -20,6 +20,10 @@
 
 using namespace std;
 
+/**
+ * TODO: GetState TERMINATED, etc..
+ * 
+ */
 class Thread
 {
 private:
@@ -79,7 +83,7 @@ void Thread::start()
 {
     // Initialize attribute object.
     int status = pthread_attr_init(&threadAttr);
-    if (status != NULL)
+    if (status != 0)
     {
         printError("On start when pthread_attr_init is called.", status, __FILE__, __LINE__);
         exit(status);
@@ -87,7 +91,7 @@ void Thread::start()
     // PTHREAD_SCOPE_SYSTEM, meaning that the threads contend for CPU time with all processes
     // running on the machine.
     status = pthread_attr_setscope(&threadAttr, PTHREAD_SCOPE_SYSTEM);
-    if (status != NULL)
+    if (status != 0)
     {
         printError("start() failed on pthread_attr_setscope", status, __FILE__, __LINE__);
         exit(status);
@@ -95,10 +99,10 @@ void Thread::start()
     
     if (!detached)
     {
-        if (runnable == NULL)
+        if (runnable == 0)
         {
             status = pthread_create(&threadId, &threadAttr, Thread::startThreadWithoutRunnable, (void*)this);
-            if (status != NULL)
+            if (status != 0)
             {
                 stringstream ss;
                 ss << "start() failed on pthread_create with out runnable and detached = "<<detached;
@@ -109,7 +113,7 @@ void Thread::start()
         else
         {
             int status = pthread_create(&threadId, &threadAttr, Thread::startThreadWithRunnable, (void*)this);
-            if (status != NULL)
+            if (status != 0)
             {
                 stringstream ss;
                 ss << "start() failed on pthread_create with runnable and detached="<<detached;
@@ -122,10 +126,10 @@ void Thread::start()
     {
         // set the detached state attribute to detached.
         status = pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
-        if (runnable == NULL)
+        if (runnable == 0)
         {
             int status = pthread_create(&threadId, &threadAttr, Thread::startThreadWithoutRunnable, (void*)this);
-            if (status != NULL)
+            if (status != 0)
             {
                 stringstream ss;
                 ss << "start() failed on pthread_create with out runnable and detached = "<<detached;
@@ -136,7 +140,7 @@ void Thread::start()
         else
         {
             int status = pthread_create(&threadId, &threadAttr, Thread::startThreadWithRunnable, (void*)this);
-            if (status != NULL)
+            if (status != 0)
             {
                 stringstream ss;
                 ss << "start() failed on pthread_create with runnable and detached = "<<detached;
@@ -146,7 +150,7 @@ void Thread::start()
         }
         
         status = pthread_attr_destroy(&threadAttr);
-        if (status != NULL)
+        if (status != 0)
         {
             stringstream ss;
             ss << "start() on pthread_attr_destroy threadId = " << threadId;
@@ -159,19 +163,14 @@ void Thread::start()
 
 void* Thread::join()
 {
-    printf("!!!!! 1\n");
     int status = pthread_join(threadId, NULL);
-    printf("!!!!! 2\n");
     if (status != 0)
     {
-        printf("!!!!! 3\n");
         stringstream ss;
         ss << "Failed on join for thread = "<<threadId;
         printError(ss.str().c_str(), status, __FILE__, __LINE__);
         exit(status);
-        printf("!!!!! 4\n");
     }
-    printf("!!!!! 5\n");
 }
 
 void Thread::init(Runnable* runnable, bool detached)
@@ -211,7 +210,7 @@ void* Thread::startThreadWithoutRunnable(void* pVoid)
     // Thread star the function when no runnable is invoked.
     Thread* thrd = static_cast<Thread*>(pVoid);
     // Check not null
-    assert(thrd != NULL);
+    assert(thrd != 0);
     // Run itself implementation.
     thrd->result = thrd->run();
     thrd->setCompleted();

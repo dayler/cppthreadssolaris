@@ -78,14 +78,12 @@ public:
      */
     V* waitAndPop()
     {
-        CMutex cmutex(&mtx);
+        CMutex cmutex(&mtx);\
         while(queue.empty())
         {
-            printf("cqueue#sync->doWait()\n");
             // Block thread to await new items.
             sync->doWait();
         }
-
         // Get front element.
         V *v = queue.front();
         // Remove first element.

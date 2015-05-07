@@ -9,7 +9,7 @@
 
 #include <queue>
 
-#include "CMutex.hpp"
+#include "SMutex.hpp"
 #include "CSynch.hpp"
 
 template <class V>
@@ -26,7 +26,7 @@ private:
     /*
      * Synch monitor.
      */
-    CSync* sync;
+    SSync* sync;
 
 public:
 
@@ -38,7 +38,7 @@ public:
         pthread_mutex_init(&mtx_pop, NULL);
         pthread_mutex_init(&mtx_push, NULL);
         pthread_mutex_init(&mtx_empty, NULL);
-        sync = new CSync();
+        sync = new SSync();
     }
     
     virtual ~Queue()

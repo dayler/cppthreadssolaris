@@ -18,7 +18,7 @@
 #include "Runnable.hpp"
 #include "SimpleRunnable.hpp"
 #include "Thread.hpp"
-#include "CMutex.hpp"
+#include "SMutex.hpp"
 #include "CSynch.hpp"
 #include "cqueue.hpp"
 
@@ -139,17 +139,17 @@ int main()
     printf("Init runnables.\n");
     Runnable* r1 = new TH1(111);
     Runnable* r2 = new TH2(222);
-//    Runnable* r3 = new TH2(333);
+    Runnable* r3 = new TH2(333);
     
     Thread* t1 = new Thread(r1, false);
     Thread* t2 = new Thread(r2, false);
-//    Thread* t3 = new Thread(r3, false);
+    Thread* t3 = new Thread(r3, false);
     
     // Start thread
     printf("Starting threads...\n");
     t2->start(); // Consumer
     t1->start(); // Producer
-//    t3->start(); // Consumer
+    t3->start(); // Consumer
     printf("Was started threads joining ...\n");
     
     // Joining threads
@@ -157,16 +157,16 @@ int main()
     cout<<"Result t1 = "<<res1<<endl;
     long res2 = reinterpret_cast<long>(t2->join()); // Consumer
     cout<<"Result t2 = "<<res2<<endl;
-//    long res3 = reinterpret_cast<long>(t3->join()); // Consumer
-//    cout<<"Result t2 = "<<res3<<endl;
+    long res3 = reinterpret_cast<long>(t3->join()); // Consumer
+    cout<<"Result t2 = "<<res3<<endl;
     
     // delete
     delete r1;
     delete r2;
-//    delete r3;
+    delete r3;
     delete t1;
     delete t2;
-//    delete t3;
+    delete t3;
     delete items;
     
     cout<<"Finish well main..."<<endl;

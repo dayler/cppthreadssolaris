@@ -5,22 +5,21 @@
  * Created on May 5, 2015, 10:25 AM
  */
 
-#ifndef CSYNCH_HPP
-#define	CSYNCH_HPP
+#ifndef SSYNC_HPP
+#define	SSYNC_HPP
 
 #include <errno.h>
 #include <stdlib.h>
 #include <pthread.h>
 
-#include "CMutex.hpp"
+#include "SMutex.hpp"
 
 const long long FIX_TIME_MILLIS_TO_NANO = 1000000UL;
 
-class CSync
+class SSync
 {
 private:
     pthread_mutex_t mutex;
-    
     pthread_cond_t syncVar;
     
     long timeout;
@@ -28,8 +27,8 @@ private:
     struct timeval tp;
     
 public:
-    CSync();
-    CSync(const CSync& orig);
+    SSync();
+    SSync(const SSync& orig);
     
     void doWait(long timeout);
     void doWait();
@@ -37,19 +36,19 @@ public:
     pthread_cond_t* getSyncCondVar();
     pthread_mutex_t* getMutex();
     
-    virtual ~CSync();
+    virtual ~SSync();
 };
 
 /* CSync */
 /* Constructors */
-CSync::CSync()
+SSync::SSync()
 {
     // Initialize sync and mutex
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&syncVar, NULL);
 }
 
-CSync::CSync(const CSync& orig)
+SSync::SSync(const SSync& orig)
 {
     // No op
 }
@@ -57,7 +56,7 @@ CSync::CSync(const CSync& orig)
 /* Private methods */
 
 /* Public methods */
-void CSync::doWait()
+void SSync::doWait()
 {
     SMutex cmutex(&mutex); // lock
     int rc = pthread_cond_wait(&syncVar, &mutex);
@@ -73,7 +72,7 @@ void CSync::doWait()
     }
 }
 
-void CSync::doWait(long timeout)
+void SSync::doWait(long timeout)
 {
     SMutex cmutex(&mutex); // lock
     
@@ -105,7 +104,7 @@ void CSync::doWait(long timeout)
     }
 }
 
-void CSync::doNotifyAll()
+void SSync::doNotifyAll()
 {
     SMutex cmutex(&mutex);
     // Condition of if statement has been met. 
@@ -115,18 +114,18 @@ void CSync::doNotifyAll()
     pthread_cond_broadcast(&syncVar);
 }
 
-pthread_cond_t* CSync::getSyncCondVar()
+pthread_cond_t* SSync::getSyncCondVar()
 {
     return &syncVar;
 }
 
-pthread_mutex_t* CSync::getMutex()
+pthread_mutex_t* SSync::getMutex()
 {
     return &mutex;
 }
 
 /* Destructor */
-CSync::~CSync()
+SSync::~SSync()
 {
     // Destroy mutex
     pthread_mutex_destroy(&mutex);

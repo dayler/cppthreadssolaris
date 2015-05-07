@@ -12,11 +12,13 @@
 #include <pthread.h>
 #include <sys/time.h>
 
+#include "Utils.hpp"
 #include "Runnable.hpp"
 #include "SimpleRunnable.hpp"
 #include "Thread.hpp"
 #include "CMutex.hpp"
 #include "CSynch.hpp"
+#include "cqueue.hpp"
 
 using namespace std;
 
@@ -26,18 +28,36 @@ int  counter = 0;
 /* For safe condition variable usage, must use a boolean predicate and  */
 /* a mutex with the condition.                                          */
 int                 workToDo = 0;
-pthread_cond_t      cond  = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t     m = PTHREAD_MUTEX_INITIALIZER;
+//pthread_cond_t      cond  = PTHREAD_COND_INITIALIZER;
+//pthread_mutex_t     m = PTHREAD_MUTEX_INITIALIZER;
 
-const int COUNT = 100;
+const int COUNT = 5;
 
 CSync* pSync;
 int shared = 0;
 
+class Item
+{
+public:
+    const char* cstr;
+    
+    Item(const char* cstr)
+    {
+        this->cstr = cstr;
+    }
+    
+    virtual ~Item()
+    {
+        // No op
+    }
+};
+
+Queue<Item>* items;
 
 #define NTHREADS                100
 #define WAIT_TIME_SECONDS       15
 
+// Produccer
 class TH1 : public Runnable
 {
 public:
@@ -53,24 +73,24 @@ public:
         return shared < COUNT;
     }
     
-    virtual void* run()
+    void* run()
     {
+        printf("THID:%d is starting...\n", id);
         while (isRunning())
         {
-            if (shared % 2 == 0)
-            {
-                printf("ID:%d SHARED:%d\n", id, shared);
-                shared++;
-                pSync->doNotifyAll();
-            }
-            else
-            {
-                pSync->doWait();
-            }
+            string sshared = SSTR(++shared);
+            printf("THID:%d Pushed %s\n", id, sshared.c_str());
+            sleep(2);
+            // Push item into queue
+            items->push(new Item(sshared.c_str()));
         }
+        
+        printf("THID:%d was finished...\n", id);
+        return reinterpret_cast<void*>(id);
     }
 };
 
+// Consummer
 class TH2 : public Runnable
 {
 public:
@@ -86,29 +106,30 @@ public:
         return shared < COUNT;
     }
     
-    virtual void* run()
+    void* run()
     {
+        printf("THID:%d is starting...\n", id);
         while (isRunning())
         {
-            if (shared % 2 != 0)
-            {
-                printf("ID:%d SHARED:%d\n", id, shared);
-                shared++;
-                pSync->doNotifyAll();
-            }
-            else
-            {
-                pSync->doWait();
-            }
+            sleep(2);
+            printf("THID:%d q->waitAndPop()... s=%d\n", id, items->size());
+//            Item* val = items->waitAndPop();
+//            printf("...THID:%d q->waitAndPop() = %s\n", id, val->cstr);
+//            delete val;
         }
+        printf("THID:%d was finished...\n", id);
+        return reinterpret_cast<void*>(id);
     }
 };
 
 int main()
 {
     cout<<"Start main..."<<endl;
+    items = new Queue<Item>();
+    printf("pSync = new CSync()\n");
     pSync = new CSync();
     
+    printf("Init runnables.\n");
     Runnable* r1 = new TH1(111);
     Runnable* r2 = new TH2(222);
     
@@ -116,8 +137,10 @@ int main()
     Thread* t2 = new Thread(r2, false);
     
     // Start thread
+    printf("Starting threads...\n");
     t1->start();
     t2->start();
+    printf("Was started threads...\n");
     
     // Join threads
     long res1 = reinterpret_cast<long>(t1->join());
@@ -132,6 +155,7 @@ int main()
     delete t1;
     delete t2;
     delete pSync;
+    delete items;
     
     cout<<"Finish well main..."<<endl;
     return 0;

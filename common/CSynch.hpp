@@ -8,22 +8,24 @@
 #ifndef CSYNCH_HPP
 #define	CSYNCH_HPP
 
+#include <errno.h>
 #include <stdlib.h>
 #include <pthread.h>
 
 #include "CMutex.hpp"
 
-const long long FIX_TIME_MILLIS_TO_NANO = 1000000L;
+const long long FIX_TIME_MILLIS_TO_NANO = 1000000UL;
 
 class CSync
 {
 private:
-    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-    pthread_cond_t syncVar = PTHREAD_COND_INITIALIZER;
+    pthread_mutex_t mutex;
+    pthread_cond_t syncVar;
+    
     long timeout;
     struct timespec ts;
     struct timeval tp;
-
+    
 public:
     CSync();
     CSync(const CSync& orig);
@@ -40,7 +42,9 @@ public:
 /* Constructors */
 CSync::CSync()
 {
-    // No op
+    // Initialize sync and mutex
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&syncVar, NULL);
 }
 
 CSync::CSync(const CSync& orig)
@@ -49,6 +53,7 @@ CSync::CSync(const CSync& orig)
 }
 
 /* Private methods */
+
 /* Public methods */
 void CSync::doWait()
 {
@@ -115,6 +120,8 @@ pthread_cond_t* CSync::getSyncCondVar()
 /* Destructor */
 CSync::~CSync()
 {
+    // Destroy mutex
+    pthread_mutex_destroy(&mutex);
     // Destroy sync condition.
     pthread_cond_destroy(&syncVar);
 }

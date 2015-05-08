@@ -13,7 +13,8 @@
         <itemPath>common/TimeUtils.hpp</itemPath>
         <itemPath>common/Utils.hpp</itemPath>
         <itemPath>common/cqueue.hpp</itemPath>
-        <itemPath>common/timer.hpp</itemPath>
+        <itemPath>common/executor.hpp</itemPath>
+        <itemPath>common/worker.hpp</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -71,9 +72,11 @@
       </item>
       <item path="common/cqueue.hpp" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="common/executor.hpp" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="common/main.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="common/timer.hpp" ex="false" tool="3" flavor2="0">
+      <item path="common/worker.hpp" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -112,9 +115,11 @@
       </item>
       <item path="common/cqueue.hpp" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="common/executor.hpp" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="common/main.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="common/timer.hpp" ex="false" tool="3" flavor2="0">
+      <item path="common/worker.hpp" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

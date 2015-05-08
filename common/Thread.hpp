@@ -36,6 +36,8 @@ private:
     bool detached;
     void* result;
     
+    volatile unsigned char thState;
+    
     Thread(const Thread& thrd);
     
     virtual void* run();
@@ -47,6 +49,10 @@ private:
     void init(Runnable* runnable, bool detached);
     
 public:
+    static unsigned char NEW;
+    static unsigned char RUNNING;
+    static unsigned char TERMINATED;
+    
     Thread();
     Thread(Runnable* runnable, bool detached);
     Thread(bool detached);
@@ -54,6 +60,7 @@ public:
     void* join();
     virtual ~Thread();
     
+    unsigned char getState();
 };
 
 /* Constructors */
@@ -79,6 +86,11 @@ Thread::Thread(const Thread& thrd)
 }
 
 /* Public Methods */
+
+unsigned char Thread::getState()
+{
+    return thState;
+}
 
 void Thread::start()
 {
@@ -159,12 +171,19 @@ void Thread::start()
             exit(status);
         }
     }
-
+    
+    // Set safe running state
+    thState = RUNNING;
 }
 
 void* Thread::join()
 {
     int status = pthread_join(threadId, NULL);
+    if (ESRCH == status || status == 0)
+    {
+        thState = TERMINATED;
+    }
+    
     if (ESRCH == status)
     {
         stringstream ss;
@@ -180,7 +199,6 @@ void* Thread::join()
         printError(ss.str().c_str(), status, __FILE__, __LINE__);
         pthread_exit(NULL);
     }
-    
     return reinterpret_cast<void*>(status);
 }
 
@@ -188,6 +206,7 @@ void Thread::init(Runnable* runnable, bool detached)
 {
     this->runnable = runnable;
     this->detached = detached;
+    thState = NEW;
 }
 
 /* Private Methods */
@@ -241,6 +260,10 @@ Thread::~Thread()
     // Destroying attr
     pthread_attr_destroy(&threadAttr);
 }
+
+unsigned char Thread::NEW = 1;
+unsigned char Thread::RUNNING = 2;
+unsigned char Thread::TERMINATED = 3;
 
 #endif	/* THREAD_HPP */
 

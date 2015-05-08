@@ -21,7 +21,8 @@
 #include "SMutex.hpp"
 #include "SSynch.hpp"
 #include "cqueue.hpp"
-#include "timer.hpp"
+#include "worker.hpp"
+#include "executor.hpp"
 
 using namespace std;
 
@@ -53,46 +54,101 @@ public:
     }
 };
 
-Queue<Item>* items;
-
-#define NTHREADS                100
-#define WAIT_TIME_SECONDS       15
-
-class SchTask : public Runnable
+class TH1 : public Runnable
 {
 public:
-    SchTask(int id)
+    TH1(int id, int delay)
     {
         this->id = id;
+        this->delay = delay;
     }
     
+    ~TH1()
+    {
+        // No op
+    }
+    
+
     void* run()
     {
-        printf("Hola!!! ID:%d\n", id);
+        sleep(delay);
+        cout<<"I'm task "<<id<<endl;
+        
         return reinterpret_cast<void*>(id);
     }
 private:
     int id;
+    int delay;
 };
 
 int main()
 {
     cout<<"start..."<<endl;
     
-    Runnable* r1 = new SchTask(10);
-    Timer* t1 = new Timer("timer-1");
+    Executor* ex = new Executor();
     
-    t1->scheduleAtFixedRate(r1, 5000, 2000);
-    long rc = reinterpret_cast<long>(t1->join());
+    Runnable* r1 = new TH1(1, 3);
+    Runnable* r2 = new TH1(2, 1);
+    Runnable* r3 = new TH1(3, 5);
     
-    cout<<"RESP:"<<rc<<endl;
+    ex->submit(r1);
+    ex->submit(r2);
+    ex->submit(r3);
+    
+    sleep(15);
     
     delete r1;
-    delete t1;
+    delete r2;
+    delete r3;
+    delete ex;
     
-    cout<<"end.."<<endl;
+    cout<<"end..."<<endl;
     return 0;
 }
+
+/**
+ * Example use scheduled workers.
+ */
+//Queue<Item>* items;
+//
+//#define NTHREADS                100
+//#define WAIT_TIME_SECONDS       15
+//
+//class SchTask : public Runnable
+//{
+//public:
+//    SchTask(int id)
+//    {
+//        this->id = id;
+//    }
+//    
+//    void* run()
+//    {
+//        printf("Hola!!! ID:%d\n", id);
+//        return reinterpret_cast<void*>(id);
+//    }
+//private:
+//    int id;
+//};
+//
+//int main()
+//{
+//    cout<<"start..."<<endl;
+//    
+//    Runnable* r1 = new SchTask(10);
+//    Worker* t1 = new Worker("timer-1");
+//    
+//    t1->scheduleAtFixedRate(r1, 5000, 2000);
+//    long rc = reinterpret_cast<long>(t1->join());
+//    
+//    cout<<"RESP:"<<rc<<endl;
+//    
+//    delete r1;
+//    delete t1;
+//    
+//    cout<<"end.."<<endl;
+//    return 0;
+//}
 
 /**
  * Producer and consumer.

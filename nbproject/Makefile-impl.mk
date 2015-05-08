@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=cppthreadssolaris
+PROJECTNAME=CppThreadsSolaris
 
 # Active Configuration
 DEFAULTCONF=Debug

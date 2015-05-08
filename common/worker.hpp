@@ -4,8 +4,8 @@
  * NuevaTel PCS de Bolivia S.A. (C) 2010
  */
 
-#ifndef _TIMER_HPP
-#define	_TIMER_HPP
+#ifndef _WORKER_HPP
+#define	_WORKER_HPP
 
 #include "Thread.hpp"
 #include "SSynch.hpp"
@@ -20,7 +20,7 @@ using namespace std;
  * @author  Eduardo Marin
  * @version 1.0, 04-16-2010
  */
-class Timer : public Thread {
+class Worker : public Thread {
 
     /** The task. */
     Runnable *task;
@@ -41,7 +41,7 @@ public:
     /**
      * Creates an unscheduled timer.
      */
-    Timer(char* name) : Thread()
+    Worker(char* name) : Thread()
     {
         this->name = name;
         cancelled=false;
@@ -49,7 +49,7 @@ public:
         pthread_mutex_init(&mtx, NULL);
     }
 
-    virtual ~Timer()
+    virtual ~Worker()
     {
         cancel();
         pthread_mutex_destroy(&mtx);

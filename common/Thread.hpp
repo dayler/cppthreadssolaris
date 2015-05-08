@@ -164,13 +164,23 @@ void Thread::start()
 void* Thread::join()
 {
     int status = pthread_join(threadId, NULL);
-    if (status != 0)
+    if (ESRCH == status)
+    {
+        stringstream ss;
+        ss<<"WARNING - "<<"STATUS:"<<status<<" FILE:"<<__FILE__<<" LINE:"<<__LINE__
+          <<" MSG: Process was finished before execute join"<<endl;
+        printf(ss.str().c_str());
+        pthread_exit(NULL);
+    }
+    else if (status != 0)
     {
         stringstream ss;
         ss << "Failed on join for thread = "<<threadId;
         printError(ss.str().c_str(), status, __FILE__, __LINE__);
-        exit(status);
+        pthread_exit(NULL);
     }
+    
+    return reinterpret_cast<void*>(status);
 }
 
 void Thread::init(Runnable* runnable, bool detached)

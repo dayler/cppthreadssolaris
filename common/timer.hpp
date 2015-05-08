@@ -43,7 +43,6 @@ public:
      */
     Timer(char* name) : Thread()
     {
-        
         this->name = name;
         cancelled=false;
         sync = new SSync();
@@ -104,13 +103,10 @@ private:
 
     void* run()
     {
-        printf("timer run()\n");
         if (delay > 0L)
         {
-            printf("delay=%d\n", delay);
             // sleep thread at delay
             sync->doWait(delay);
-            printf("...delay=%d\n", delay);
         }
         
         if(!cancelled)

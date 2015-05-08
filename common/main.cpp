@@ -21,6 +21,7 @@
 #include "SMutex.hpp"
 #include "SSynch.hpp"
 #include "cqueue.hpp"
+#include "timer.hpp"
 
 using namespace std;
 
@@ -57,121 +58,160 @@ Queue<Item>* items;
 #define NTHREADS                100
 #define WAIT_TIME_SECONDS       15
 
-// Produccer
-class TH1 : public Runnable
+class SchTask : public Runnable
 {
 public:
-    int id;
-    
-    TH1(int id)
+    SchTask(int id)
     {
         this->id = id;
     }
     
-    ~TH1()
-    {
-        // No op
-    }
-    
-    bool isRunning()
-    {
-        return shared < COUNT;
-    }
-    
     void* run()
     {
-        while (isRunning())
-        {
-            printf("AAAA 1\n");
-            string sshared = SSTR(shared);
-            printf("AAAA 2\n");
-            sleep(3);
-            printf("AAAA 3\n");
-            items->push(new Item(sshared));
-            printf("THID:%d Pushed %s\n", id, sshared.c_str());
-            shared++;
-        }
+        printf("Hola!!! ID:%d\n", id);
         return reinterpret_cast<void*>(id);
     }
-};
-
-// Consummer
-class TH2 : public Runnable
-{
-public:
+private:
     int id;
-    
-    TH2(int id)
-    {
-        this->id = id;
-    }
-    
-    ~TH2()
-    {
-        // No op
-    }
-    
-    bool isRunning()
-    {
-        // If shred is less than MAX or items is not empty.
-        return shared < COUNT || !items->empty();
-    }
-    
-    void* run()
-    {
-        while (isRunning())
-        {
-            printf("BBBB\n");
-            sleep(1);
-            Item* val = items->waitAndPop();
-            printf("THID:%d q->waitAndPop() = %s\n", id, val->cstr.c_str());
-            delete val;
-        }
-        return reinterpret_cast<void*>(id);
-    }
 };
 
 int main()
 {
-    cout<<"Start main..."<<endl;
-    items = new Queue<Item>();
+    cout<<"start..."<<endl;
     
-    printf("Init runnables.\n");
-    Runnable* r1 = new TH1(111);
-    Runnable* r2 = new TH2(222);
-    Runnable* r3 = new TH2(333);
+    Runnable* r1 = new SchTask(10);
+    Timer* t1 = new Timer("timer-1");
     
-    Thread* t1 = new Thread(r1, false);
-    Thread* t2 = new Thread(r2, false);
-    Thread* t3 = new Thread(r3, false);
+    t1->scheduleAt(r1, 5000);
+    long rc = reinterpret_cast<long>(t1->join());
     
-    // Start thread
-    printf("Starting threads...\n");
-    t2->start(); // Consumer
-    t1->start(); // Producer
-    t3->start(); // Consumer
-    printf("Was started threads joining ...\n");
+    cout<<"RESP:"<<rc<<endl;
     
-    // Joining threads
-    long res1 = reinterpret_cast<long>(t1->join()); // Producer
-    cout<<"Result t1 = "<<res1<<endl;
-    long res2 = reinterpret_cast<long>(t2->join()); // Consumer
-    cout<<"Result t2 = "<<res2<<endl;
-    long res3 = reinterpret_cast<long>(t3->join()); // Consumer
-    cout<<"Result t2 = "<<res3<<endl;
-    
-    // delete
     delete r1;
-    delete r2;
-    delete r3;
     delete t1;
-    delete t2;
-    delete t3;
-    delete items;
     
-    cout<<"Finish well main..."<<endl;
+    cout<<"end.."<<endl;
     return 0;
 }
+
+/**
+ * Producer and consumer.
+ */
+//// Produccer
+//class TH1 : public Runnable
+//{
+//public:
+//    int id;
+//    
+//    TH1(int id)
+//    {
+//        this->id = id;
+//    }
+//    
+//    ~TH1()
+//    {
+//        // No op
+//    }
+//    
+//    bool isRunning()
+//    {
+//        return shared < COUNT;
+//    }
+//    
+//    void* run()
+//    {
+//        while (isRunning())
+//        {
+//            printf("AAAA 1\n");
+//            string sshared = SSTR(shared);
+//            printf("AAAA 2\n");
+//            sleep(3);
+//            printf("AAAA 3\n");
+//            items->push(new Item(sshared));
+//            printf("THID:%d Pushed %s\n", id, sshared.c_str());
+//            shared++;
+//        }
+//        return reinterpret_cast<void*>(id);
+//    }
+//};
+//
+//// Consummer
+//class TH2 : public Runnable
+//{
+//public:
+//    int id;
+//    
+//    TH2(int id)
+//    {
+//        this->id = id;
+//    }
+//    
+//    ~TH2()
+//    {
+//        // No op
+//    }
+//    
+//    bool isRunning()
+//    {
+//        // If shred is less than MAX or items is not empty.
+//        return shared < COUNT || !items->empty();
+//    }
+//    
+//    void* run()
+//    {
+//        while (isRunning())
+//        {
+//            printf("BBBB\n");
+//            sleep(1);
+//            Item* val = items->waitAndPop();
+//            printf("THID:%d q->waitAndPop() = %s\n", id, val->cstr.c_str());
+//            delete val;
+//        }
+//        return reinterpret_cast<void*>(id);
+//    }
+//};
+//
+//int main()
+//{
+//    cout<<"Start main..."<<endl;
+//    items = new Queue<Item>();
+//    
+//    printf("Init runnables.\n");
+//    Runnable* r1 = new TH1(111);
+//    Runnable* r2 = new TH2(222);
+//    Runnable* r3 = new TH2(333);
+//    
+//    Thread* t1 = new Thread(r1, false);
+//    Thread* t2 = new Thread(r2, false);
+//    Thread* t3 = new Thread(r3, false);
+//    
+//    // Start thread
+//    printf("Starting threads...\n");
+//    t2->start(); // Consumer
+//    t1->start(); // Producer
+//    t3->start(); // Consumer
+//    printf("Was started threads joining ...\n");
+//    
+//    // Joining threads
+//    long res1 = reinterpret_cast<long>(t1->join()); // Producer
+//    cout<<"Result t1 = "<<res1<<endl;
+//    long res2 = reinterpret_cast<long>(t2->join()); // Consumer
+//    cout<<"Result t2 = "<<res2<<endl;
+//    long res3 = reinterpret_cast<long>(t3->join()); // Consumer
+//    cout<<"Result t2 = "<<res3<<endl;
+//    
+//    // delete
+//    delete r1;
+//    delete r2;
+//    delete r3;
+//    delete t1;
+//    delete t2;
+//    delete t3;
+//    delete items;
+//    
+//    cout<<"Finish well main..."<<endl;
+//    return 0;
+//}
 
 /**
  * Threads basic

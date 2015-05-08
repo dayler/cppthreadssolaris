@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+
+#include "TimeUtils.hpp"
 #include "SMutex.hpp"
 
 const long long FIX_TIME_MILLIS_TO_NANO = 1000000UL;
@@ -85,10 +87,8 @@ void SSync::doWait(long timeout)
     }
     
     /* Convert from timeval to timespec */
-    ts.tv_sec  = tp.tv_sec;
-    ts.tv_nsec = tp.tv_usec * 1000;
-    ts.tv_nsec += timeout * 1000000UL;
-    
+    tvAddMillis(&tp, timeout);
+    timevalToTimespec(&tp, &ts);
     // Wait while functionCount2() operates on count
     // mutex unlocked if condition varialbe in functionCount2() signaled.
     rc = pthread_cond_timedwait(&syncVar, &mutex, &ts);
@@ -101,6 +101,7 @@ void SSync::doWait(long timeout)
     else
     {
         cmutex.unlock();
+        printf("cmutex.unlock()...\n");
     }
 }
 

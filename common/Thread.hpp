@@ -86,7 +86,7 @@ void Thread::start()
     if (status != 0)
     {
         printError("On start when pthread_attr_init is called.", status, __FILE__, __LINE__);
-        pthread_exit(status);
+        exit(status);
     }
     // PTHREAD_SCOPE_SYSTEM, meaning that the threads contend for CPU time with all processes
     // running on the machine.

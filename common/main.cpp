@@ -82,7 +82,7 @@ int main()
     Runnable* r1 = new SchTask(10);
     Timer* t1 = new Timer("timer-1");
     
-    t1->scheduleAt(r1, 5000);
+    t1->scheduleAtFixedRate(r1, 5000, 2000);
     long rc = reinterpret_cast<long>(t1->join());
     
     cout<<"RESP:"<<rc<<endl;
